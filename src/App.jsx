@@ -1,35 +1,33 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Header from './components/layout/Header';
+import FlightSearch from './components/flights/FlightSearch';
+import FlightResults from './components/flights/FlightResults';
+import SeatSelection from './components/seats/SeatSelection';
+import BookingForm from './components/booking/BookingForm';
+import BookingConfirmation from './components/booking/BookingConfirmation';
+import Footer from './components/layout/Footer';
+import { BookingProvider } from './hooks/BookingContext';
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <BookingProvider>
+      <Router>
+        <div className="min-h-screen flex flex-col bg-gray-50">
+          <Header />
+          <main className="flex-grow container mx-auto px-4 py-8">
+            <Routes>
+              <Route path="/" element={<FlightSearch />} />
+              <Route path="/flights" element={<FlightResults />} />
+              <Route path="/seats/:flightId" element={<SeatSelection />} />
+              <Route path="/booking/:flightId" element={<BookingForm />} />
+              <Route path="/confirmation/:bookingReference" element={<BookingConfirmation />} />
+            </Routes>
+          </main>
+          <Footer />
+        </div>
+      </Router>
+    </BookingProvider>
+  );
 }
 
-export default App
+export default App;
