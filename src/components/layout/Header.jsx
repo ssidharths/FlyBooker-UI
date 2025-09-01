@@ -13,7 +13,7 @@ export default function Header() {
           
           <nav className="hidden md:flex space-x-8">
             <Link to="/" className="text-gray-600 hover:text-primary font-medium">Flights</Link>
-            <Link to="/" className="text-gray-600 hover:text-primary font-medium">My Bookings</Link>
+            <Link to="/my-bookings" className="text-gray-600 hover:text-primary font-medium">My Bookings</Link>
             <Link to="/" className="text-gray-600 hover:text-primary font-medium">Support</Link>
           </nav>
           

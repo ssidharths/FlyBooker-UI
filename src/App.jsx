@@ -5,6 +5,7 @@ import FlightResults from './components/flights/FlightResults';
 import SeatSelection from './components/seats/SeatSelection';
 import BookingForm from './components/booking/BookingForm';
 import BookingConfirmation from './components/booking/BookingConfirmation';
+import MyBooking from './components/booking/MyBookings';
 import Footer from './components/layout/Footer';
 import { BookingProvider } from './hooks/BookingContext';
 
@@ -21,6 +22,7 @@ function App() {
               <Route path="/seats/:flightId" element={<SeatSelection />} />
               <Route path="/booking/:flightId" element={<BookingForm />} />
               <Route path="/confirmation/:bookingReference" element={<BookingConfirmation />} />
+              <Route path="/my-bookings" element={<MyBooking />} />
             </Routes>
           </main>
           <Footer />
