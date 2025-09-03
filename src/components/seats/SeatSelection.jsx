@@ -12,9 +12,6 @@ export default function SeatSelection() {
   const { data: seats, loading } = useApi(`/seats/flight/${flightId}`);
   const [totalPrice, setTotalPrice] = useState(0);
   useEffect(() => {
-    console.log("Selected seats:", state.selectedSeats);
-    console.log("Selected flight:", state.selectedFlight);
-    console.log("Seats data:", seats);
   }, [state.selectedSeats, state.selectedFlight, seats]);
   useEffect(() => {
     if (state.selectedFlight && seats) {
@@ -31,19 +28,11 @@ export default function SeatSelection() {
       const calculatedPrice = basePrice * seatCount + additionalFees;
       setTotalPrice(calculatedPrice);
     } else {
-      console.log("Missing data for price calculation");
       setTotalPrice(0);
     }
   }, [state.selectedSeats, seats, state.selectedFlight]);
   // Travel class sync useEffect
   useEffect(() => {
-    console.log("=== Travel Class Debug ===");
-    console.log(
-      "state.searchParams.travelClass:",
-      state.searchParams.travelClass
-    );
-    console.log("state.selectedTravelClass:", state.selectedTravelClass);
-
     if (state.searchParams.travelClass) {
       // Always update to ensure it's in sync
       if (state.selectedTravelClass !== state.searchParams.travelClass) {
