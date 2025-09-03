@@ -16,7 +16,6 @@ export default function FlightSearch() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    e.preventDefault();
     const formDataWithClass = {
       ...formData,
       travelClass: formData.travelClass || "ECONOMY", // Ensure it has a value
