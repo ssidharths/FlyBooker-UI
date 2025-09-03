@@ -17,8 +17,6 @@ export default function BookingConfirmation() {
   const [paymentStatus, setPaymentStatus] = useState(null);
   const [isPolling, setIsPolling] = useState(true);
   const [pollCount, setPollCount] = useState(0);
-  const [showReloadMessage, setShowReloadMessage] = useState(false);
-  const [countdown, setCountdown] = useState(5);
   
   // Check if payment is still pending
   useEffect(() => {
@@ -26,32 +24,10 @@ export default function BookingConfirmation() {
       setPaymentStatus(booking.paymentStatus);
       if (booking.paymentStatus !== "PENDING") {
         setIsPolling(false);
-        // Show reload message after 3 seconds
-        const messageTimer = setTimeout(() => {
-          setShowReloadMessage(true);
-        }, 3000);
-        
-        return () => clearTimeout(messageTimer);
       }
     }
   }, [booking]);
-  
-  // Handle countdown and page reload
-  useEffect(() => {
-    if (showReloadMessage) {
-      if (countdown <= 0) {
-        window.location.reload(true); // true forces a hard reload from the server
-        return;
-      }
-      
-      const timer = setTimeout(() => {
-        setCountdown(prev => prev - 1);
-      }, 1000);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [showReloadMessage, countdown]);
-  
+    
   // Poll for payment status updates every 5 seconds
   useInterval(
     () => {
@@ -143,7 +119,7 @@ export default function BookingConfirmation() {
               Processing Payment
             </h1>
             <p className="text-lg text-gray-600">
-              Please wait while we process your payment
+              Please wait while we process your payment. Do not refresh or close this tab
             </p>
             <div className="mt-4">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
@@ -152,24 +128,7 @@ export default function BookingConfirmation() {
         )}
       </div>
       
-      {/* Add a countdown notification */}
-      {showReloadMessage && (
-        <div className="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <p className="text-sm text-blue-700">
-                This page will automatically refresh in {countdown} seconds to ensure you have the latest booking information.
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-      
+  
       <div className="bg-white rounded-xl shadow-md p-8 mb-8">
         <div className="flex justify-between items-start mb-8">
           <div>
