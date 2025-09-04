@@ -2,9 +2,13 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useBooking } from "../../hooks/useBooking";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import AirportSearch from "../AirportSearch"; // Import the new component
+
 export default function FlightSearch() {
   const navigate = useNavigate();
   const { dispatch } = useBooking();
+  
+  // Store airport codes instead of display text
   const [formData, setFormData] = useState({
     origin: "",
     destination: "",
@@ -18,11 +22,12 @@ export default function FlightSearch() {
     e.preventDefault();
     const formDataWithClass = {
       ...formData,
-      travelClass: formData.travelClass || "ECONOMY", // Ensure it has a value
+      travelClass: formData.travelClass || "ECONOMY",
     };
     dispatch({ type: "SET_SEARCH_PARAMS", payload: formDataWithClass });
     navigate("/flights");
   };
+
   return (
     <div className="max-w-5xl mx-auto">
       <div className="text-center mb-12">
@@ -40,14 +45,12 @@ export default function FlightSearch() {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 From
               </label>
-              <input
-                type="text"
-                placeholder="City or airport"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+              <AirportSearch
                 value={formData.origin}
-                onChange={(e) =>
-                  setFormData({ ...formData, origin: e.target.value })
+                onChange={(airportCode) =>
+                  setFormData({ ...formData, origin: airportCode })
                 }
+                placeholder="Search city or airport"
                 required
               />
             </div>
@@ -55,18 +58,18 @@ export default function FlightSearch() {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 To
               </label>
-              <input
-                type="text"
-                placeholder="City or airport"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+              <AirportSearch
                 value={formData.destination}
-                onChange={(e) =>
-                  setFormData({ ...formData, destination: e.target.value })
+                onChange={(airportCode) =>
+                  setFormData({ ...formData, destination: airportCode })
                 }
+                placeholder="Search city or airport"
                 required
               />
             </div>
           </div>
+          
+          {/* Rest of your form remains the same */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">

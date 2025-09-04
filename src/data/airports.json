@@ -1,0 +1,40 @@
+{
+    "COK": {
+      "airportName": "Kochi International Airport",
+      "city": "Kochi",
+      "country": "India",
+      "alternativeNames": ["Cochin", "Ernakulam"],
+      "state": "Kerala"
+    },
+    "DXB": {
+      "airportName": "Dubai International Airport",
+      "city": "Dubai",
+      "country": "UAE",
+      "alternativeNames": ["Dubai City"]
+    },
+    "DEL": {
+      "airportName": "Indira Gandhi International Airport",
+      "city": "New Delhi",
+      "country": "India",
+      "alternativeNames": ["Delhi"]
+    },
+    "BOM": {
+      "airportName": "Chhatrapati Shivaji Maharaj International Airport",
+      "city": "Mumbai",
+      "country": "India",
+      "alternativeNames": ["Bombay"]
+    },
+    "LHR": {
+      "airportName": "London Heathrow Airport",
+      "city": "London",
+      "country": "United Kingdom",
+      "alternativeNames": ["Heathrow"]
+    },
+    "JFK": {
+      "airportName": "John F. Kennedy International Airport",
+      "city": "New York",
+      "country": "United States",
+      "alternativeNames": ["New York City", "NYC"]
+    }
+  }
+  
