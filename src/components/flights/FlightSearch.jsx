@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useBooking } from "../../hooks/useBooking";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
-import AirportSearch from "../AirportSearch"; // Import the new component
+import AirportSearch from "../AirportSearch";
 
 export default function FlightSearch() {
   const navigate = useNavigate();
@@ -69,7 +69,6 @@ export default function FlightSearch() {
             </div>
           </div>
           
-          {/* Rest of your form remains the same */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
