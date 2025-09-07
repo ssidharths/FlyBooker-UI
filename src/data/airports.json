@@ -6,35 +6,112 @@
       "alternativeNames": ["Cochin", "Ernakulam"],
       "state": "Kerala"
     },
-    "DXB": {
-      "airportName": "Dubai International Airport",
-      "city": "Dubai",
-      "country": "UAE",
-      "alternativeNames": ["Dubai City"]
-    },
-    "DEL": {
-      "airportName": "Indira Gandhi International Airport",
-      "city": "New Delhi",
+    "TRV": {
+      "airportName": "Thiruvananthapuram International Airport",
+      "city": "Thiruvananthapuram",
       "country": "India",
-      "alternativeNames": ["Delhi"]
+      "alternativeNames": ["Trivandrum"],
+      "state": "Kerala"
     },
-    "BOM": {
-      "airportName": "Chhatrapati Shivaji Maharaj International Airport",
-      "city": "Mumbai",
+    "CNN": {
+      "airportName": "Kannur International Airport",
+      "city": "Mattannur",
       "country": "India",
-      "alternativeNames": ["Bombay"]
+      "alternativeNames": ["Kannur", "Mattannur"],
+      "state": "Kerala"
     },
-    "LHR": {
-      "airportName": "London Heathrow Airport",
-      "city": "London",
-      "country": "United Kingdom",
-      "alternativeNames": ["Heathrow"]
-    },
-    "JFK": {
-      "airportName": "John F. Kennedy International Airport",
-      "city": "New York",
-      "country": "United States",
-      "alternativeNames": ["New York City", "NYC"]
-    }
+    "MAA": {
+    "airportName": "Chennai International Airport",
+    "city": "Chennai",
+    "country": "India",
+    "alternativeNames": ["Madras"],
+    "state": "Tamil Nadu"
+  },
+  "BLR": {
+    "airportName": "Kempegowda International Airport",
+    "city": "Bengaluru",
+    "country": "India",
+    "alternativeNames": ["Bangalore"],
+    "state": "Karnataka"
+  },
+  "HYD": {
+    "airportName": "Rajiv Gandhi International Airport",
+    "city": "Hyderabad",
+    "country": "India",
+    "alternativeNames": ["Hyderabad City"],
+    "state": "Telangana"
+  },
+  "CCU": {
+    "airportName": "Netaji Subhas Chandra Bose International Airport",
+    "city": "Kolkata",
+    "country": "India",
+    "alternativeNames": ["Calcutta"],
+    "state": "West Bengal"
+  },
+  "SIN": {
+    "airportName": "Singapore Changi Airport",
+    "city": "Singapore",
+    "country": "Singapore",
+    "alternativeNames": ["Changi"]
+  },
+  "HKG": {
+    "airportName": "Hong Kong International Airport",
+    "city": "Hong Kong",
+    "country": "Hong Kong",
+    "alternativeNames": ["Chek Lap Kok"]
+  },
+  "CDG": {
+    "airportName": "Charles de Gaulle Airport",
+    "city": "Paris",
+    "country": "France",
+    "alternativeNames": ["Paris CDG", "Roissy"]
+  },
+  "FRA": {
+    "airportName": "Frankfurt am Main Airport",
+    "city": "Frankfurt",
+    "country": "Germany",
+    "alternativeNames": ["Frankfurt Airport"]
+  },
+  "SYD": {
+    "airportName": "Sydney Kingsford Smith Airport",
+    "city": "Sydney",
+    "country": "Australia",
+    "alternativeNames": ["Sydney Airport"]
+  },
+  "LAX": {
+    "airportName": "Los Angeles International Airport",
+    "city": "Los Angeles",
+    "country": "United States",
+    "alternativeNames": ["LA", "L.A."]
+  },
+  "DXB": {
+    "airportName": "Dubai International Airport",
+    "city": "Dubai",
+    "country": "UAE",
+    "alternativeNames": ["Dubai City"]
+  },
+  "DEL": {
+    "airportName": "Indira Gandhi International Airport",
+    "city": "New Delhi",
+    "country": "India",
+    "alternativeNames": ["Delhi"]
+  },
+  "BOM": {
+    "airportName": "Chhatrapati Shivaji Maharaj International Airport",
+    "city": "Mumbai",
+    "country": "India",
+    "alternativeNames": ["Bombay"]
+  },
+  "LHR": {
+    "airportName": "London Heathrow Airport",
+    "city": "London",
+    "country": "United Kingdom",
+    "alternativeNames": ["Heathrow"]
+  },
+  "JFK": {
+    "airportName": "John F. Kennedy International Airport",
+    "city": "New York",
+    "country": "United States",
+    "alternativeNames": ["New York City", "NYC"]
   }
-  
+}
