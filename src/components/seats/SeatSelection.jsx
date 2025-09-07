@@ -28,8 +28,10 @@ export default function SeatSelection() {
         0
       );
       const seatCount = state.selectedSeats.length;
-      const calculatedPrice = basePrice * seatCount + additionalFees;
-      setTotalPrice(calculatedPrice);
+      const subtotal = basePrice * seatCount + additionalFees;
+      const tax = subtotal * 0.12;
+      const grandTotal = subtotal + tax;
+      setTotalPrice(grandTotal);
     } else {
       console.log("Missing data for price calculation");
       setTotalPrice(0);
@@ -141,6 +143,24 @@ export default function SeatSelection() {
                       .toFixed(2)}
                   </span>
                 </div>
+                <div className="flex justify-between mb-2">
+                  <span className="text-gray-600">Tax (12%):</span>
+                  <span className="font-medium">
+                    ₹
+                    {(
+                      ((state.selectedFlight?.price || 0) *
+                        state.selectedSeats.length +
+                        seats
+                          ?.filter((s) => state.selectedSeats.includes(s.id))
+                          .reduce(
+                            (sum, seat) => sum + (seat.additionalFee || 0),
+                            0
+                          )) *
+                      0.12
+                    ).toFixed(2)}
+                  </span>
+                </div>
+
                 <div className="flex justify-between text-lg font-bold mt-4 pt-4 border-t">
                   <span>Total:</span>
                   <span className="text-primary">₹{totalPrice.toFixed(2)}</span>

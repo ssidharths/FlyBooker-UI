@@ -14,6 +14,8 @@ export default function BookingForm() {
   const { data: seats } = useApi(`/seats/flight/${flightId}`);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [totalPrice, setTotalPrice] = useState(0);
+  const [subtotal, setSubtotal] = useState(0);
+  const [tax, setTax] = useState(0);
   const [isPassengerDetailsValid, setIsPassengerDetailsValid] = useState(false);
   
   useEffect(() => {
@@ -29,8 +31,12 @@ export default function BookingForm() {
       const selectedSeatsData = seats.filter(seat => state.selectedSeats.includes(seat.id));
       const additionalFees = selectedSeatsData.reduce((sum, seat) => sum + (seat.additionalFee || 0), 0);
       const seatCount = state.selectedSeats.length;
-      const calculatedPrice = (basePrice * seatCount) + additionalFees;
-      setTotalPrice(calculatedPrice);
+      const subtotal = basePrice * seatCount + additionalFees;
+      const tax = subtotal * 0.12; // 12% tax
+      const grandTotal = subtotal + tax;
+      setTotalPrice(grandTotal);
+      setSubtotal(subtotal);
+      setTax(tax);
     } else {
       setTotalPrice(0);
     }
@@ -203,6 +209,10 @@ export default function BookingForm() {
                       ₹{seats?.filter(s => state.selectedSeats.includes(s.id))
                           .reduce((sum, seat) => sum + (seat.additionalFee || 0), 0).toFixed(2)}
                     </span>
+                  </div>
+                  <div className="flex justify-between mb-2">
+                  <span className="text-gray-600">Tax (12%):</span>
+                  <span>₹{tax.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-lg font-bold mt-4 pt-4 border-t">
                     <span>Total:</span>
