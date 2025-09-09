@@ -23,7 +23,7 @@ export default function FlightSearch() {
     const formDataWithClass = {
       ...formData,
       travelClass: formData.travelClass || "ECONOMY",
-    };
+    };  
     dispatch({ type: "SET_SEARCH_PARAMS", payload: formDataWithClass });
     navigate("/flights");
   };

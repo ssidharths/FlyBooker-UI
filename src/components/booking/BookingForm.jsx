@@ -5,6 +5,7 @@ import { useApi } from '../../hooks/useApi';
 import { isFormValid } from '../../utils/validation';
 import PassengerDetails from './PassengerDetails';
 import { ArrowLeftIcon, LockClosedIcon } from '@heroicons/react/24/outline';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export default function BookingForm() {
   const { flightId } = useParams();
@@ -68,7 +69,7 @@ export default function BookingForm() {
         seatIds: state.selectedSeats,
         paymentMethod: state.bookingDetails.paymentMethod
       };
-      const response = await fetch('http://localhost:8080/fb/api/v1/bookings', {
+      const response = await fetch(`${API_BASE_URL}/bookings`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -80,6 +81,8 @@ export default function BookingForm() {
       }
       const booking = await response.json();
       dispatch({ type: 'SET_BOOKING', payload: booking });
+      dispatch({ type: 'RESET_SELECTED_SEATS' });
+      dispatch({ type: 'CLEAR_BOOKING_DETAILS' });
       navigate(`/confirmation/${booking.bookingReference}`);
     } catch (error) {
       console.error('Booking error:', error);

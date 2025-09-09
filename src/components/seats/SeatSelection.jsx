@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useApi } from "../../hooks/useApi";
 import { useBooking } from "../../hooks/useBooking";
@@ -9,13 +9,31 @@ export default function SeatSelection() {
   const { flightId } = useParams();
   const navigate = useNavigate();
   const { state, dispatch } = useBooking();
-  const { data: seats, loading } = useApi(`/seats/flight/${flightId}`);
+  const { data: seats, loading, refetch } = useApi(`/seats/flight/${flightId}`);
   const [totalPrice, setTotalPrice] = useState(0);
+
   useEffect(() => {
-    console.log("Selected seats:", state.selectedSeats);
-    console.log("Selected flight:", state.selectedFlight);
-    console.log("Seats data:", seats);
-  }, [state.selectedSeats, state.selectedFlight, seats]);
+    if (refetch) {
+      console.log("Refreshing seat availability data");
+      refetch();
+    }
+  }, [flightId, refetch]);
+
+  useEffect(() => {
+    console.log("🔍 Flight pricing debug by travel class:");
+    console.log("- Current travel class:", state.selectedTravelClass);
+    console.log("- Selected flight full object:", state.selectedFlight);
+    
+    // Log all possible price-related properties
+    if (state.selectedFlight) {
+      console.log("- price:", state.selectedFlight.price);
+      console.log("- basePrice:", state.selectedFlight.basePrice);
+      console.log("- fare:", state.selectedFlight.fare);
+      console.log("- economyPrice:", state.selectedFlight.economyPrice);
+      console.log("- amount:", state.selectedFlight.amount);
+    }
+  }, [state.selectedFlight, state.selectedTravelClass]);
+
   useEffect(() => {
     if (state.selectedFlight && seats) {
       // Try to get the price from either basePrice or price property
@@ -51,13 +69,30 @@ export default function SeatSelection() {
     }
   }, [state.searchParams.travelClass, state.selectedTravelClass, dispatch]);
   // Reset seats when travel class changes
+  // useEffect(() => {
+  //   if (state.selectedTravelClass && state.selectedSeats.length > 0) {
+  //     // If travel class changes and seats are selected, reset them
+  //     console.log("Travel class changed, resetting selected seats");
+  //     dispatch({ type: "RESET_SELECTED_SEATS" });
+  //   }
+  // }, [state.selectedTravelClass, state.selectedSeats.length, dispatch]);
+
+  const prevTravelClassRef = useRef(state.selectedTravelClass);
+
   useEffect(() => {
-    if (state.selectedTravelClass && state.selectedSeats.length > 0) {
-      // If travel class changes and seats are selected, reset them
-      console.log("Travel class changed, resetting selected seats");
-      dispatch({ type: "RESET_SELECTED_SEATS" });
-    }
+    // Only clear seats if travel class is set and seats are selected
+    // Avoid clearing on initial load when selectedTravelClass is null
+    const prevTravelClass = prevTravelClassRef.current;
+    const currentTravelClass = state.selectedTravelClass;
+  // Clear seats only when travel class actually changes (not on initial load)
+      if (prevTravelClass && currentTravelClass && prevTravelClass !== currentTravelClass && state.selectedSeats.length > 0) {
+        console.log("Travel class changed from", prevTravelClass, "to", currentTravelClass, "- clearing selected seats");
+        dispatch({ type: "RESET_SELECTED_SEATS" });
+      }
+      prevTravelClassRef.current = currentTravelClass;
+
   }, [state.selectedTravelClass, state.selectedSeats.length, dispatch]);
+
   const handleContinue = () => {
     if (state.selectedSeats.length === 0) {
       alert("Please select at least one seat");

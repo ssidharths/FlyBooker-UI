@@ -2,13 +2,15 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useApi } from "../../hooks/useApi";
 import { formatTime, formatDate } from "../../utils/dateUtils";
 import { formatPrice } from "../../utils/priceUtils";
-import { CheckCircleIcon, ArrowLeftIcon } from "@heroicons/react/24/outline";
+import { CheckCircleIcon, ArrowLeftIcon, XCircleIcon } from "@heroicons/react/24/outline";
 import { useState, useEffect } from "react";
 import useInterval from "../../hooks/userInterval";
+import { useBooking } from "../../hooks/useBooking";
 
 export default function BookingConfirmation() {
   const { bookingReference } = useParams();
   const navigate = useNavigate();
+  const { dispatch } = useBooking();
   const {
     data: booking,
     loading,
@@ -17,6 +19,8 @@ export default function BookingConfirmation() {
   const [paymentStatus, setPaymentStatus] = useState(null);
   const [isPolling, setIsPolling] = useState(true);
   const [pollCount, setPollCount] = useState(0);
+  const [isCancelling, setIsCancelling] = useState(false);
+  const [cancelSuccess, setCancelSuccess] = useState(false);
   
   // Check if payment is still pending
   useEffect(() => {
@@ -27,7 +31,7 @@ export default function BookingConfirmation() {
       }
     }
   }, [booking]);
-    
+  
   // Poll for payment status updates every 5 seconds
   useInterval(
     () => {
@@ -46,6 +50,32 @@ export default function BookingConfirmation() {
     }
   }, [pollCount, isPolling]);
 
+  const handleCancelBooking = async () => {
+    if (!window.confirm("Are you sure you want to cancel this booking? This action cannot be undone.")) {
+      return;
+    }
+    
+    setIsCancelling(true);
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/bookings/${bookingReference}`, {
+        method: 'DELETE',
+      });
+      
+      if (response.ok) {
+        setCancelSuccess(true);
+        // Refresh booking data to show updated status
+        refetch();
+      } else {
+        alert("Failed to cancel booking. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error cancelling booking:", error);
+      alert("An error occurred while cancelling your booking. Please try again.");
+    } finally {
+      setIsCancelling(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -58,11 +88,22 @@ export default function BookingConfirmation() {
   const isPaymentPending = paymentStatus === "PENDING";
   const isPaymentCompleted = paymentStatus === "COMPLETED";
   const isPaymentFailed = paymentStatus === "FAILED";
+  const isBookingCancelled = booking?.status === "CANCELLED";
   
   return (
     <div className="max-w-3xl mx-auto">
       <div className="text-center mb-12">
-        {isPaymentCompleted ? (
+        {isBookingCancelled ? (
+          <>
+            <XCircleIcon className="h-20 w-20 text-red-500 mx-auto mb-4" />
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              Booking Cancelled
+            </h1>
+            <p className="text-lg text-gray-600">
+              Your booking has been successfully cancelled
+            </p>
+          </>
+        ) : isPaymentCompleted ? (
           <>
             <CheckCircleIcon className="h-20 w-20 text-green-500 mx-auto mb-4" />
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
@@ -119,7 +160,7 @@ export default function BookingConfirmation() {
               Processing Payment
             </h1>
             <p className="text-lg text-gray-600">
-              Please wait while we process your payment. Do not refresh or close this tab
+              Please wait while we process your payment
             </p>
             <div className="mt-4">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
@@ -128,7 +169,6 @@ export default function BookingConfirmation() {
         )}
       </div>
       
-  
       <div className="bg-white rounded-xl shadow-md p-8 mb-8">
         <div className="flex justify-between items-start mb-8">
           <div>
@@ -225,7 +265,6 @@ export default function BookingConfirmation() {
               >
                 {booking?.status}
               </p>
-              {/* Add payment status display */}
               <p className="text-gray-600 mt-2">Payment Status</p>
               <p
                 className={`text-lg font-bold ${
@@ -249,10 +288,11 @@ export default function BookingConfirmation() {
         </div>
       </div>
       
-      {/* Replace the static Next Steps section with conditional rendering */}
       <div
         className={`rounded-xl p-6 text-center ${
-          isPaymentCompleted
+          isBookingCancelled
+            ? "bg-gray-100"
+            : isPaymentCompleted
             ? "bg-blue-50"
             : isPaymentFailed
             ? "bg-red-50"
@@ -260,12 +300,19 @@ export default function BookingConfirmation() {
         }`}
       >
         <h3 className="text-lg font-bold text-gray-900 mb-2">
-          {isPaymentCompleted
+          {isBookingCancelled
+            ? "Cancellation Complete"
+            : isPaymentCompleted
             ? "Next Steps"
             : isPaymentFailed
             ? "What to do now"
             : "Processing Payment"}
         </h3>
+        {isBookingCancelled && (
+          <p className="text-gray-600 mb-4">
+            Your booking has been cancelled successfully. A confirmation email has been sent to {booking?.passengerEmail}.
+          </p>
+        )}
         {isPaymentCompleted && (
           <p className="text-gray-600 mb-4">
             Your booking confirmation has been sent to {booking?.passengerEmail}
@@ -286,7 +333,7 @@ export default function BookingConfirmation() {
           </p>
         )}
         <div className="flex justify-center space-x-4">
-          {isPaymentCompleted && (
+          {isPaymentCompleted && !isBookingCancelled && (
             <>
               <button className="bg-primary text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-600">
                 Print Ticket
@@ -295,10 +342,29 @@ export default function BookingConfirmation() {
                 Add to Calendar
               </button>
               <button 
-                onClick={() => navigate("/")}
+                onClick={() => {
+                  dispatch({ type: 'RESET_SELECTED_SEATS' });
+                  dispatch({ type: 'CLEAR_BOOKING_DETAILS' });
+                  navigate("/")
+                }
+                }
                 className="bg-gray-100 text-gray-800 px-6 py-2 rounded-lg font-medium hover:bg-gray-200"
               >
                 Book Another Flight
+              </button>
+              <button
+                onClick={handleCancelBooking}
+                disabled={isCancelling}
+                className="bg-red-100 text-red-700 px-6 py-2 rounded-lg font-medium hover:bg-red-200 flex items-center"
+              >
+                {isCancelling ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-700 mr-2"></div>
+                    Cancelling...
+                  </>
+                ) : (
+                  "Cancel Booking"
+                )}
               </button>
             </>
           )}
@@ -317,11 +383,24 @@ export default function BookingConfirmation() {
           )}
           {isPaymentPending && (
             <button
-            onClick={() => (window.location.href = "/my-bookings")}
-            className="border border-primary text-primary px-6 py-2 rounded-lg font-medium hover:bg-blue-50"
+              onClick={() => navigate("/my-bookings")}
+              className="border border-primary text-primary px-6 py-2 rounded-lg font-medium hover:bg-blue-50"
             >
               View My Bookings
             </button>
+          )}
+          {isBookingCancelled && (
+            <>
+              <button
+                onClick={() => navigate("/")}
+                className="bg-primary text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-600"
+              >
+                Book Another Flight
+              </button>
+              <button className="border border-gray-300 text-gray-700 px-6 py-2 rounded-lg font-medium hover:bg-gray-50">
+                Contact Support
+              </button>
+            </>
           )}
         </div>
       </div>

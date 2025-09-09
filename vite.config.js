@@ -7,7 +7,7 @@ export default defineConfig({
     port: 3000,
     proxy: {
       '/fb': {
-        target: 'http://localhost:8080',
+        target: 'http://13.201.104.217:8081',
         changeOrigin: true,
       },
     },

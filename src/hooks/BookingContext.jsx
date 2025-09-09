@@ -47,6 +47,18 @@ function bookingReducer(state, action) {
       return initialState;
     case "SET_SELECTED_TRAVEL_CLASS":
       return { ...state, selectedTravelClass: action.payload };
+    case "RESET_SELECTED_SEATS":
+      return { ...state, selectedSeats: [] };
+    case "CLEAR_BOOKING_DETAILS":
+      return {
+        ...state,
+        bookingDetails: {
+          passengerName: "",
+          passengerEmail: "",
+          passengerPhone: "",
+          paymentMethod: "CREDIT_CARD",
+        },
+      };
     default:
       return state;
   }
