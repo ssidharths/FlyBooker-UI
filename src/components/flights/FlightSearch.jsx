@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useBooking } from "../../hooks/useBooking";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
@@ -7,6 +7,7 @@ import AirportSearch from "../AirportSearch";
 export default function FlightSearch() {
   const navigate = useNavigate();
   const { dispatch } = useBooking();
+  const formRef = useRef(null);
   
   // Store airport codes instead of display text
   const [formData, setFormData] = useState({
@@ -17,7 +18,11 @@ export default function FlightSearch() {
     passengers: 1,
     travelClass: "ECONOMY",
   });
-
+  
+  // Add state to track which field is focused
+  const [focusedField, setFocusedField] = useState(null);
+  
+  // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
     const formDataWithClass = {
@@ -28,7 +33,40 @@ export default function FlightSearch() {
     dispatch({ type: "RESET_SELECTED_SEATS" });
     navigate("/flights");
   };
-
+  
+  // Handle input changes with better event handling
+  const handleInputChange = (field, value) => {
+    setFormData({ ...formData, [field]: value });
+  };
+  
+  // Handle focus events
+  const handleFocus = (fieldName) => {
+    setFocusedField(fieldName);
+  };
+  
+  // Handle blur events
+  const handleBlur = () => {
+    // Small delay to allow click events to fire before blurring
+    setTimeout(() => setFocusedField(null), 200);
+  };
+  
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (formRef.current && !formRef.current.contains(event.target)) {
+        setFocusedField(null);
+      }
+    };
+    
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside);
+    
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    };
+  }, []);
+  
   return (
     <div className="max-w-5xl mx-auto">
       <div className="text-center mb-12">
@@ -40,33 +78,47 @@ export default function FlightSearch() {
         </p>
       </div>
       <div className="bg-white rounded-2xl shadow-xl p-8">
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6" ref={formRef}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 From
               </label>
-              <AirportSearch
-                value={formData.origin}
-                onChange={(airportCode) =>
-                  setFormData({ ...formData, origin: airportCode })
-                }
-                placeholder="Search city or airport"
-                required
-              />
+              <div 
+                className={`relative ${focusedField === 'origin' ? 'z-10' : ''}`}
+                onFocus={() => handleFocus('origin')}
+                onBlur={handleBlur}
+              >
+                <AirportSearch
+                  value={formData.origin}
+                  onChange={(airportCode) => handleInputChange('origin', airportCode)}
+                  placeholder="Search city or airport"
+                  required
+                  // Pass additional props to improve touch handling
+                  touchFriendly={true}
+                  className="w-full"
+                />
+              </div>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 To
               </label>
-              <AirportSearch
-                value={formData.destination}
-                onChange={(airportCode) =>
-                  setFormData({ ...formData, destination: airportCode })
-                }
-                placeholder="Search city or airport"
-                required
-              />
+              <div 
+                className={`relative ${focusedField === 'destination' ? 'z-10' : ''}`}
+                onFocus={() => handleFocus('destination')}
+                onBlur={handleBlur}
+              >
+                <AirportSearch
+                  value={formData.destination}
+                  onChange={(airportCode) => handleInputChange('destination', airportCode)}
+                  placeholder="Search city or airport"
+                  required
+                  // Pass additional props to improve touch handling
+                  touchFriendly={true}
+                  className="w-full"
+                />
+              </div>
             </div>
           </div>
           
@@ -79,9 +131,7 @@ export default function FlightSearch() {
                 type="date"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                 value={formData.departureDate}
-                onChange={(e) =>
-                  setFormData({ ...formData, departureDate: e.target.value })
-                }
+                onChange={(e) => handleInputChange('departureDate', e.target.value)}
                 required
               />
             </div>
@@ -93,9 +143,7 @@ export default function FlightSearch() {
                 type="date"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                 value={formData.returnDate}
-                onChange={(e) =>
-                  setFormData({ ...formData, returnDate: e.target.value })
-                }
+                onChange={(e) => handleInputChange('returnDate', e.target.value)}
               />
             </div>
             <div>
@@ -106,12 +154,7 @@ export default function FlightSearch() {
                 <select
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                   value={formData.passengers}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      passengers: parseInt(e.target.value),
-                    })
-                  }
+                  onChange={(e) => handleInputChange('passengers', parseInt(e.target.value))}
                 >
                   {[1, 2, 3, 4, 5, 6].map((num) => (
                     <option key={num} value={num}>
@@ -122,9 +165,7 @@ export default function FlightSearch() {
                 <select
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                   value={formData.travelClass}
-                  onChange={(e) =>
-                    setFormData({ ...formData, travelClass: e.target.value })
-                  }
+                  onChange={(e) => handleInputChange('travelClass', e.target.value)}
                 >
                   <option value="ECONOMY">Economy</option>
                   <option value="PREMIUM_ECONOMY">Premium Economy</option>
