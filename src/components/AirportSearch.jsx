@@ -12,12 +12,28 @@ const AirportSearch = ({
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [isTouch, setIsTouch] = useState(false);
   const inputRef = useRef();
   const suggestionsRef = useRef();
+  const timeoutRef = useRef();
 
   useEffect(() => {
     setSearchTerm(value || '');
   }, [value]);
+
+  // Detect touch devices
+  useEffect(() => {
+    const handleTouchStart = () => setIsTouch(true);
+    const handleMouseDown = () => setIsTouch(false);
+    
+    document.addEventListener('touchstart', handleTouchStart);
+    document.addEventListener('mousedown', handleMouseDown);
+    
+    return () => {
+      document.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('mousedown', handleMouseDown);
+    };
+  }, []);
 
   const handleInputChange = (e) => {
     const inputValue = e.target.value;
@@ -40,9 +56,13 @@ const AirportSearch = ({
     onChange(airport.code); // Pass airport code to parent
   };
 
+  const handleSuggestionTouch = (e, airport) => {
+    e.preventDefault(); // Prevent default touch behavior
+    handleSuggestionClick(airport);
+  };
+
   const handleKeyDown = (e) => {
     if (!showSuggestions) return;
-
     switch (e.key) {
       case 'ArrowDown':
         e.preventDefault();
@@ -68,9 +88,33 @@ const AirportSearch = ({
   };
 
   const handleBlur = () => {
-    // Delay hiding suggestions to allow click events
-    setTimeout(() => setShowSuggestions(false), 200);
+    // Clear any existing timeout
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    
+    // For touch devices, use a longer delay
+    const delay = isTouch ? 500 : 200;
+    
+    timeoutRef.current = setTimeout(() => {
+      setShowSuggestions(false);
+    }, delay);
   };
+
+  const handleFocus = () => {
+    if (suggestions.length > 0) {
+      setShowSuggestions(true);
+    }
+  };
+
+  // Clean up timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   return (
     <div className="relative">
@@ -81,11 +125,7 @@ const AirportSearch = ({
         onChange={handleInputChange}
         onKeyDown={handleKeyDown}
         onBlur={handleBlur}
-        onFocus={() => {
-          if (suggestions.length > 0) {
-            setShowSuggestions(true);
-          }
-        }}
+        onFocus={handleFocus}
         placeholder={placeholder}
         required={required}
         className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent ${className}`}
@@ -101,6 +141,7 @@ const AirportSearch = ({
             <div
               key={airport.code}
               onClick={() => handleSuggestionClick(airport)}
+              onTouchStart={(e) => handleSuggestionTouch(e, airport)}
               className={`px-4 py-3 cursor-pointer border-b border-gray-100 last:border-b-0 hover:bg-gray-50 ${
                 index === selectedIndex ? 'bg-blue-50' : ''
               }`}
