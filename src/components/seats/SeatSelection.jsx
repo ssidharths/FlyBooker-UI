@@ -5,6 +5,7 @@ import { useBooking } from "../../hooks/useBooking";
 import SeatMap from "./SeatMap";
 import SeatLegend from "./SeatLegend";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
+
 export default function SeatSelection() {
   const { flightId } = useParams();
   const navigate = useNavigate();
@@ -77,7 +78,33 @@ export default function SeatSelection() {
     }
     prevTravelClassRef.current = currentTravelClass;
   }, [state.selectedTravelClass, state.selectedSeats.length, dispatch]);
+  
+  // Reset selected seats when passenger count changes
+  useEffect(() => {
+    // Check if passenger count has changed and if there are selected seats
+    if (state.selectedSeats.length > 0) {
+      console.log("Passenger count changed, resetting selected seats");
+      dispatch({ type: "RESET_SELECTED_SEATS" });
+    }
+  }, [state.searchParams.passengers, dispatch]);
+  
+  // Handle beforeunload event (when user tries to close/refresh the page)
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (state.selectedSeats.length > 0) {
+        const message = "You have selected seats. Are you sure you want to leave?";
+        e.returnValue = message;
+        return message;
+      }
+    };
 
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [state.selectedSeats]);
+  
   // Update the handleContinue function
   const handleContinue = () => {
     if (state.selectedSeats.length === 0) {
@@ -99,6 +126,18 @@ export default function SeatSelection() {
     navigate(`/booking/${flightId}`);
   };
   
+  // Handle back navigation with confirmation
+  const handleBack = () => {
+    if (state.selectedSeats.length > 0) {
+      if (window.confirm("You have selected seats. Going back will reset your selection. Continue?")) {
+        dispatch({ type: "RESET_SELECTED_SEATS" });
+        navigate("/flights");
+      }
+    } else {
+      navigate("/flights");
+    }
+  };
+  
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -111,7 +150,7 @@ export default function SeatSelection() {
     <div className="max-w-6xl mx-auto">
       <div className="mb-8">
         <button
-          onClick={() => navigate("/flights")}
+          onClick={handleBack}
           className="flex items-center text-primary font-medium"
         >
           <ArrowLeftIcon className="h-5 w-5 mr-2" />

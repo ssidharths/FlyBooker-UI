@@ -7,8 +7,10 @@ export default function FlightCard({ flight }) {
   const { dispatch } = useBooking();
   const handleSelectFlight = () => {
     dispatch({ type: "SELECT_FLIGHT", payload: flight });
+    dispatch({ type: "RESET_SELECTED_SEATS" });
     navigate(`/seats/${flight.id}`);
   };
+  
   return (
     <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition duration-300">
       <div className="p-6">

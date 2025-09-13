@@ -25,6 +25,7 @@ export default function FlightSearch() {
       travelClass: formData.travelClass || "ECONOMY",
     };  
     dispatch({ type: "SET_SEARCH_PARAMS", payload: formDataWithClass });
+    dispatch({ type: "RESET_SELECTED_SEATS" });
     navigate("/flights");
   };
 
