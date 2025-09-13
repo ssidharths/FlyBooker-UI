@@ -1,12 +1,16 @@
 import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
 export default defineConfig({
+  plugins: [react()],
   server: {
+    port: 3000,
     proxy: {
-      "/api": {
-        target: "http://13.201.104.217:8081/fb/api/v1",
+      '/api': {
+        target: 'http://13.201.104.217:8081',
         changeOrigin: true,
         rewrite: path => path.replace(/^\/api/, ""),
       },
     },
   },
-});
+})
