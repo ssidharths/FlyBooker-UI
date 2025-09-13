@@ -26,16 +26,30 @@ function bookingReducer(state, action) {
       return { ...state, searchParams: action.payload };
     case "SELECT_FLIGHT":
       return { ...state, selectedFlight: action.payload };
-    case "TOGGLE_SEAT": {
-      const seatId = action.payload;
-      const isSelected = state.selectedSeats.includes(seatId);
-      return {
-        ...state,
-        selectedSeats: isSelected
-          ? state.selectedSeats.filter((id) => id !== seatId)
-          : [...state.selectedSeats, seatId],
-      };
-    }
+   
+      case "TOGGLE_SEAT": {
+        const seatId = action.payload;
+        const isSelected = state.selectedSeats.includes(seatId);
+        const passengerCount = state.searchParams.passengers;
+        
+        if (isSelected) {
+          // Always allow deselecting
+          return {
+            ...state,
+            selectedSeats: state.selectedSeats.filter(id => id !== seatId)
+          };
+        } else {
+          // Only allow selecting if under passenger limit
+          if (state.selectedSeats.length < passengerCount) {
+            return {
+              ...state,
+              selectedSeats: [...state.selectedSeats, seatId]
+            };
+          }
+          // If at limit, return state unchanged
+          return state;
+        }
+      }
     case "UPDATE_BOOKING_DETAILS":
       return {
         ...state,

@@ -11,29 +11,22 @@ export default function SeatSelection() {
   const { state, dispatch } = useBooking();
   const { data: seats, loading, refetch } = useApi(`/seats/flight/${flightId}`);
   const [totalPrice, setTotalPrice] = useState(0);
-
+  
+  // Add these after the existing state declarations
+  const passengerCount = state.searchParams.passengers;
+  const [seatError, setSeatError] = useState('');
+  
   useEffect(() => {
     if (refetch) {
       console.log("Refreshing seat availability data");
       refetch();
     }
   }, [flightId, refetch]);
-
-  useEffect(() => {
-    console.log("🔍 Flight pricing debug by travel class:");
-    console.log("- Current travel class:", state.selectedTravelClass);
-    console.log("- Selected flight full object:", state.selectedFlight);
-    
+  
+  useEffect(() => {    
     // Log all possible price-related properties
-    if (state.selectedFlight) {
-      console.log("- price:", state.selectedFlight.price);
-      console.log("- basePrice:", state.selectedFlight.basePrice);
-      console.log("- fare:", state.selectedFlight.fare);
-      console.log("- economyPrice:", state.selectedFlight.economyPrice);
-      console.log("- amount:", state.selectedFlight.amount);
-    }
   }, [state.selectedFlight, state.selectedTravelClass]);
-
+  
   useEffect(() => {
     if (state.selectedFlight && seats) {
       // Try to get the price from either basePrice or price property
@@ -55,6 +48,7 @@ export default function SeatSelection() {
       setTotalPrice(0);
     }
   }, [state.selectedSeats, seats, state.selectedFlight]);
+  
   // Travel class sync useEffect
   useEffect(() => {
     if (state.searchParams.travelClass) {
@@ -68,38 +62,43 @@ export default function SeatSelection() {
       }
     }
   }, [state.searchParams.travelClass, state.selectedTravelClass, dispatch]);
+  
   // Reset seats when travel class changes
-  // useEffect(() => {
-  //   if (state.selectedTravelClass && state.selectedSeats.length > 0) {
-  //     // If travel class changes and seats are selected, reset them
-  //     console.log("Travel class changed, resetting selected seats");
-  //     dispatch({ type: "RESET_SELECTED_SEATS" });
-  //   }
-  // }, [state.selectedTravelClass, state.selectedSeats.length, dispatch]);
-
   const prevTravelClassRef = useRef(state.selectedTravelClass);
-
   useEffect(() => {
     // Only clear seats if travel class is set and seats are selected
     // Avoid clearing on initial load when selectedTravelClass is null
     const prevTravelClass = prevTravelClassRef.current;
     const currentTravelClass = state.selectedTravelClass;
-  // Clear seats only when travel class actually changes (not on initial load)
-      if (prevTravelClass && currentTravelClass && prevTravelClass !== currentTravelClass && state.selectedSeats.length > 0) {
-        console.log("Travel class changed from", prevTravelClass, "to", currentTravelClass, "- clearing selected seats");
-        dispatch({ type: "RESET_SELECTED_SEATS" });
-      }
-      prevTravelClassRef.current = currentTravelClass;
-
+    // Clear seats only when travel class actually changes (not on initial load)
+    if (prevTravelClass && currentTravelClass && prevTravelClass !== currentTravelClass && state.selectedSeats.length > 0) {
+      console.log("Travel class changed from", prevTravelClass, "to", currentTravelClass, "- clearing selected seats");
+      dispatch({ type: "RESET_SELECTED_SEATS" });
+    }
+    prevTravelClassRef.current = currentTravelClass;
   }, [state.selectedTravelClass, state.selectedSeats.length, dispatch]);
 
+  // Update the handleContinue function
   const handleContinue = () => {
     if (state.selectedSeats.length === 0) {
-      alert("Please select at least one seat");
+      setSeatError("Please select at least one seat");
       return;
     }
+    
+    if (state.selectedSeats.length > passengerCount) {
+      setSeatError(`You can only select ${passengerCount} seat${passengerCount > 1 ? 's' : ''} for ${passengerCount} passenger${passengerCount > 1 ? 's' : ''}`);
+      return;
+    }
+    
+    if (state.selectedSeats.length < passengerCount) {
+      setSeatError(`Please select all ${passengerCount} seat${passengerCount > 1 ? 's' : ''}`);
+      return;
+    }
+    
+    setSeatError('');
     navigate(`/booking/${flightId}`);
   };
+  
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -107,6 +106,7 @@ export default function SeatSelection() {
       </div>
     );
   }
+  
   return (
     <div className="max-w-6xl mx-auto">
       <div className="mb-8">
@@ -133,12 +133,27 @@ export default function SeatSelection() {
               : "Not Set"}
           </span>
         </div>
+        
+        {/* Add this section after the travel class display */}
+        <div className="mt-4">
+          <div className={`p-4 rounded-lg ${seatError ? 'bg-red-50 border border-red-200' : 'bg-blue-50 border border-blue-200'}`}>
+            <p className={seatError ? "text-red-800" : "text-blue-800"}>
+              {seatError || `You need to select ${passengerCount} seat${passengerCount > 1 ? 's' : ''} for ${passengerCount} passenger${passengerCount > 1 ? 's' : ''}. Currently selected: ${state.selectedSeats.length}`}
+            </p>
+          </div>
+        </div>
       </div>
+      
       <div className="bg-white rounded-xl shadow-md p-6 mb-8">
         <div className="flex flex-col lg:flex-row gap-8">
           <div className="lg:w-3/4">
             <div className="mb-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Seat Map</h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-bold text-gray-900">Seat Map</h2>
+                <div className="text-sm font-medium px-3 py-1 rounded-full bg-gray-100">
+                  Selected: {state.selectedSeats.length}/{passengerCount}
+                </div>
+              </div>
               <div className="bg-gray-100 rounded-lg p-4">
                 <div className="text-center mb-4">
                   <div className="inline-block bg-gray-800 text-white px-4 py-2 rounded-lg text-sm">
@@ -149,12 +164,12 @@ export default function SeatSelection() {
               </div>
             </div>
           </div>
+          
           <div className="lg:w-1/4">
             <div className="bg-gray-50 rounded-lg p-6">
               <h3 className="text-lg font-bold text-gray-900 mb-4">
                 Your Selection
               </h3>
-
               <div className="mb-6">
                 <SeatLegend />
               </div>
@@ -195,17 +210,18 @@ export default function SeatSelection() {
                     ).toFixed(2)}
                   </span>
                 </div>
-
                 <div className="flex justify-between text-lg font-bold mt-4 pt-4 border-t">
                   <span>Total:</span>
                   <span className="text-primary">₹{totalPrice.toFixed(2)}</span>
                 </div>
               </div>
+              
+              {/* Updated Continue button */}
               <button
                 onClick={handleContinue}
-                disabled={state.selectedSeats.length === 0}
+                disabled={state.selectedSeats.length === 0 || state.selectedSeats.length !== passengerCount}
                 className={`w-full bg-primary text-white py-3 rounded-lg font-medium mt-6 hover:bg-blue-600 transition duration-300 ${
-                  state.selectedSeats.length === 0
+                  state.selectedSeats.length === 0 || state.selectedSeats.length !== passengerCount
                     ? "opacity-50 cursor-not-allowed"
                     : ""
                 }`}

@@ -1,12 +1,16 @@
 import { useBooking } from "../../hooks/useBooking";
 export default function SeatMap({ seats }) {
   const { state, dispatch } = useBooking();
-
+  
+  // Add passenger count and seat limit check
+  const passengerCount = state.searchParams.passengers;
+  const isSeatLimitReached = state.selectedSeats.length >= passengerCount;
+  
   const handleSeatClick = (seatId) => {
     // Find the seat object
     const seat = seats.find((s) => s.id === seatId);
     if (!seat) return;
-
+    
     // Check if seat matches the selected travel class
     if (
       state.selectedTravelClass &&
@@ -20,9 +24,16 @@ export default function SeatMap({ seats }) {
       );
       return;
     }
-
+    
+    // Check if seat limit is reached (but allow deselection)
+    if (isSeatLimitReached && !state.selectedSeats.includes(seatId)) {
+      alert(`You can only select ${passengerCount} seat${passengerCount > 1 ? 's' : ''} for ${passengerCount} passenger${passengerCount > 1 ? 's' : ''}`);
+      return;
+    }
+    
     dispatch({ type: "TOGGLE_SEAT", payload: seatId });
   };
+  
   // Group seats by row
   const seatsByRow = {};
   seats?.forEach((seat) => {
@@ -32,20 +43,25 @@ export default function SeatMap({ seats }) {
     }
     seatsByRow[row].push(seat);
   });
+  
   const getSeatColor = (seat) => {
     // Check if seat matches travel class
     const isCorrectClass =
       !state.selectedTravelClass ||
       seat.seatClass === state.selectedTravelClass;
-
+    
     if (state.selectedSeats.includes(seat.id)) {
       return "bg-primary text-white";
     }
-
+    
     switch (seat.status) {
       case "AVAILABLE":
         if (!isCorrectClass) {
           return "bg-gray-100 text-gray-400 cursor-not-allowed"; // Disabled look
+        }
+        // Add visual indication when seat limit is reached
+        if (isSeatLimitReached) {
+          return "bg-gray-50 border border-gray-200 text-gray-400 cursor-not-allowed opacity-70";
         }
         return "bg-white border border-gray-300 hover:bg-gray-100 cursor-pointer";
       case "OCCUPIED":
@@ -56,6 +72,7 @@ export default function SeatMap({ seats }) {
         return "bg-white border border-gray-300";
     }
   };
+  
   const getSeatTitle = (seat) => {
     if (seat.status !== "AVAILABLE")
       return `${seat.seatNumber} - ${seat.status}`;
@@ -65,8 +82,13 @@ export default function SeatMap({ seats }) {
     ) {
       return `${seat.seatNumber} - ${seat.seatClass} (Not available for your class)`;
     }
+    // Add seat limit info to tooltip
+    if (isSeatLimitReached && !state.selectedSeats.includes(seat.id)) {
+      return `${seat.seatNumber} - ${seat.seatClass} (Seat limit reached)`;
+    }
     return `${seat.seatNumber} - ${seat.seatClass}`;
   };
+  
   return (
     <div className="space-y-2">
       {Object.keys(seatsByRow).map((row) => (
@@ -84,7 +106,8 @@ export default function SeatMap({ seats }) {
                 disabled={
                   seat.status !== "AVAILABLE" ||
                   (state.selectedTravelClass &&
-                    seat.seatClass !== state.selectedTravelClass)
+                    seat.seatClass !== state.selectedTravelClass) ||
+                  (isSeatLimitReached && !state.selectedSeats.includes(seat.id))
                 }
                 className={`w-10 h-10 rounded-lg flex items-center justify-center text-sm font-medium transition duration-200 ${getSeatColor(
                   seat
