@@ -2,7 +2,11 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useApi } from "../../hooks/useApi";
 import { formatTime, formatDate } from "../../utils/dateUtils";
 import { formatPrice } from "../../utils/priceUtils";
-import { CheckCircleIcon, ArrowLeftIcon, XCircleIcon } from "@heroicons/react/24/outline";
+import {
+  CheckCircleIcon,
+  ArrowLeftIcon,
+  XCircleIcon,
+} from "@heroicons/react/24/outline";
 import { useState, useEffect } from "react";
 import useInterval from "../../hooks/userInterval";
 import { useBooking } from "../../hooks/useBooking";
@@ -21,7 +25,7 @@ export default function BookingConfirmation() {
   const [pollCount, setPollCount] = useState(0);
   const [isCancelling, setIsCancelling] = useState(false);
   const [cancelSuccess, setCancelSuccess] = useState(false);
-  
+
   // Check if payment is still pending
   useEffect(() => {
     if (booking) {
@@ -31,7 +35,7 @@ export default function BookingConfirmation() {
       }
     }
   }, [booking]);
-  
+
   // Poll for payment status updates every 5 seconds
   useInterval(
     () => {
@@ -42,7 +46,7 @@ export default function BookingConfirmation() {
     },
     isPolling ? 10000 : null
   );
-  
+
   // Stop polling after 2 minutes (24 attempts) or when payment is no longer pending
   useEffect(() => {
     if (pollCount >= 24 || !isPolling) {
@@ -51,16 +55,23 @@ export default function BookingConfirmation() {
   }, [pollCount, isPolling]);
 
   const handleCancelBooking = async () => {
-    if (!window.confirm("Are you sure you want to cancel this booking? This action cannot be undone.")) {
+    if (
+      !window.confirm(
+        "Are you sure you want to cancel this booking? This action cannot be undone."
+      )
+    ) {
       return;
     }
-    
+
     setIsCancelling(true);
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/bookings/${bookingReference}`, {
-        method: 'DELETE',
-      });
-      
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/bookings/${bookingReference}`,
+        {
+          method: "DELETE",
+        }
+      );
+
       if (response.ok) {
         setCancelSuccess(true);
         // Refresh booking data to show updated status
@@ -70,7 +81,9 @@ export default function BookingConfirmation() {
       }
     } catch (error) {
       console.error("Error cancelling booking:", error);
-      alert("An error occurred while cancelling your booking. Please try again.");
+      alert(
+        "An error occurred while cancelling your booking. Please try again."
+      );
     } finally {
       setIsCancelling(false);
     }
@@ -83,13 +96,13 @@ export default function BookingConfirmation() {
       </div>
     );
   }
-  
+
   // Show different UI based on payment status
   const isPaymentPending = paymentStatus === "PENDING";
   const isPaymentCompleted = paymentStatus === "COMPLETED";
   const isPaymentFailed = paymentStatus === "FAILED";
   const isBookingCancelled = booking?.status === "CANCELLED";
-  
+
   return (
     <div className="max-w-3xl mx-auto">
       <div className="text-center mb-12">
@@ -168,7 +181,7 @@ export default function BookingConfirmation() {
           </>
         )}
       </div>
-      
+
       <div className="bg-white rounded-xl shadow-md p-8 mb-8">
         <div className="flex justify-between items-start mb-8">
           <div>
@@ -287,7 +300,7 @@ export default function BookingConfirmation() {
           </div>
         </div>
       </div>
-      
+
       <div
         className={`rounded-xl p-6 text-center ${
           isBookingCancelled
@@ -310,7 +323,8 @@ export default function BookingConfirmation() {
         </h3>
         {isBookingCancelled && (
           <p className="text-gray-600 mb-4">
-            Your booking has been cancelled successfully. A confirmation email has been sent to {booking?.passengerEmail}.
+            Your booking has been cancelled successfully. A confirmation email
+            has been sent to {booking?.passengerEmail}.
           </p>
         )}
         {isPaymentCompleted && (
@@ -341,13 +355,12 @@ export default function BookingConfirmation() {
               <button className="border border-primary text-primary px-6 py-2 rounded-lg font-medium hover:bg-blue-50">
                 Add to Calendar
               </button>
-              <button 
+              <button
                 onClick={() => {
-                  dispatch({ type: 'RESET_SELECTED_SEATS' });
-                  dispatch({ type: 'CLEAR_BOOKING_DETAILS' });
-                  navigate("/")
-                }
-                }
+                  dispatch({ type: "RESET_SELECTED_SEATS" });
+                  dispatch({ type: "CLEAR_BOOKING_DETAILS" });
+                  navigate("/");
+                }}
                 className="bg-gray-100 text-gray-800 px-6 py-2 rounded-lg font-medium hover:bg-gray-200"
               >
                 Book Another Flight

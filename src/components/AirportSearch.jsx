@@ -1,14 +1,14 @@
-import { useState, useRef, useEffect } from 'react';
-import { searchAirports } from '../utils/airportUtils';
+import { useState, useRef, useEffect } from "react";
+import { searchAirports } from "../utils/airportUtils";
 
-const AirportSearch = ({ 
-  value, 
-  onChange, 
-  placeholder, 
+const AirportSearch = ({
+  value,
+  onChange,
+  placeholder,
   required = false,
-  className = "" 
+  className = "",
 }) => {
-  const [searchTerm, setSearchTerm] = useState(value || '');
+  const [searchTerm, setSearchTerm] = useState(value || "");
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
@@ -18,27 +18,27 @@ const AirportSearch = ({
   const timeoutRef = useRef();
 
   useEffect(() => {
-    setSearchTerm(value || '');
+    setSearchTerm(value || "");
   }, [value]);
 
   // Detect touch devices
   useEffect(() => {
     const handleTouchStart = () => setIsTouch(true);
     const handleMouseDown = () => setIsTouch(false);
-    
-    document.addEventListener('touchstart', handleTouchStart);
-    document.addEventListener('mousedown', handleMouseDown);
-    
+
+    document.addEventListener("touchstart", handleTouchStart);
+    document.addEventListener("mousedown", handleMouseDown);
+
     return () => {
-      document.removeEventListener('touchstart', handleTouchStart);
-      document.removeEventListener('mousedown', handleMouseDown);
+      document.removeEventListener("touchstart", handleTouchStart);
+      document.removeEventListener("mousedown", handleMouseDown);
     };
   }, []);
 
   const handleInputChange = (e) => {
     const inputValue = e.target.value;
     setSearchTerm(inputValue);
-    
+
     if (inputValue.length >= 2) {
       const results = searchAirports(inputValue);
       setSuggestions(results);
@@ -64,23 +64,23 @@ const AirportSearch = ({
   const handleKeyDown = (e) => {
     if (!showSuggestions) return;
     switch (e.key) {
-      case 'ArrowDown':
+      case "ArrowDown":
         e.preventDefault();
-        setSelectedIndex(prev => 
+        setSelectedIndex((prev) =>
           prev < suggestions.length - 1 ? prev + 1 : prev
         );
         break;
-      case 'ArrowUp':
+      case "ArrowUp":
         e.preventDefault();
-        setSelectedIndex(prev => prev > 0 ? prev - 1 : -1);
+        setSelectedIndex((prev) => (prev > 0 ? prev - 1 : -1));
         break;
-      case 'Enter':
+      case "Enter":
         e.preventDefault();
         if (selectedIndex >= 0) {
           handleSuggestionClick(suggestions[selectedIndex]);
         }
         break;
-      case 'Escape':
+      case "Escape":
         setShowSuggestions(false);
         setSelectedIndex(-1);
         break;
@@ -92,10 +92,10 @@ const AirportSearch = ({
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
-    
+
     // For touch devices, use a longer delay
     const delay = isTouch ? 500 : 200;
-    
+
     timeoutRef.current = setTimeout(() => {
       setShowSuggestions(false);
     }, delay);
@@ -131,9 +131,9 @@ const AirportSearch = ({
         className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent ${className}`}
         autoComplete="off"
       />
-      
+
       {showSuggestions && suggestions.length > 0 && (
-        <div 
+        <div
           ref={suggestionsRef}
           className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
         >
@@ -143,7 +143,7 @@ const AirportSearch = ({
               onClick={() => handleSuggestionClick(airport)}
               onTouchStart={(e) => handleSuggestionTouch(e, airport)}
               className={`px-4 py-3 cursor-pointer border-b border-gray-100 last:border-b-0 hover:bg-gray-50 ${
-                index === selectedIndex ? 'bg-blue-50' : ''
+                index === selectedIndex ? "bg-blue-50" : ""
               }`}
             >
               <div className="flex justify-between items-center">

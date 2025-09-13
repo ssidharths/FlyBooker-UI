@@ -10,7 +10,7 @@ export default function FlightCard({ flight }) {
     dispatch({ type: "RESET_SELECTED_SEATS" });
     navigate(`/seats/${flight.id}`);
   };
-  
+
   return (
     <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition duration-300">
       <div className="p-6">

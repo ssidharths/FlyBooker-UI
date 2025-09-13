@@ -12,22 +12,20 @@ export default function SeatSelection() {
   const { state, dispatch } = useBooking();
   const { data: seats, loading, refetch } = useApi(`/seats/flight/${flightId}`);
   const [totalPrice, setTotalPrice] = useState(0);
-  
-  // Add these after the existing state declarations
   const passengerCount = state.searchParams.passengers;
-  const [seatError, setSeatError] = useState('');
-  
+  const [seatError, setSeatError] = useState("");
+
   useEffect(() => {
     if (refetch) {
       console.log("Refreshing seat availability data");
       refetch();
     }
   }, [flightId, refetch]);
-  
-  useEffect(() => {    
+
+  useEffect(() => {
     // Log all possible price-related properties
   }, [state.selectedFlight, state.selectedTravelClass]);
-  
+
   useEffect(() => {
     if (state.selectedFlight && seats) {
       // Try to get the price from either basePrice or price property
@@ -49,7 +47,7 @@ export default function SeatSelection() {
       setTotalPrice(0);
     }
   }, [state.selectedSeats, seats, state.selectedFlight]);
-  
+
   // Travel class sync useEffect
   useEffect(() => {
     if (state.searchParams.travelClass) {
@@ -63,7 +61,7 @@ export default function SeatSelection() {
       }
     }
   }, [state.searchParams.travelClass, state.selectedTravelClass, dispatch]);
-  
+
   // Reset seats when travel class changes
   const prevTravelClassRef = useRef(state.selectedTravelClass);
   useEffect(() => {
@@ -72,13 +70,24 @@ export default function SeatSelection() {
     const prevTravelClass = prevTravelClassRef.current;
     const currentTravelClass = state.selectedTravelClass;
     // Clear seats only when travel class actually changes (not on initial load)
-    if (prevTravelClass && currentTravelClass && prevTravelClass !== currentTravelClass && state.selectedSeats.length > 0) {
-      console.log("Travel class changed from", prevTravelClass, "to", currentTravelClass, "- clearing selected seats");
+    if (
+      prevTravelClass &&
+      currentTravelClass &&
+      prevTravelClass !== currentTravelClass &&
+      state.selectedSeats.length > 0
+    ) {
+      console.log(
+        "Travel class changed from",
+        prevTravelClass,
+        "to",
+        currentTravelClass,
+        "- clearing selected seats"
+      );
       dispatch({ type: "RESET_SELECTED_SEATS" });
     }
     prevTravelClassRef.current = currentTravelClass;
   }, [state.selectedTravelClass, state.selectedSeats.length, dispatch]);
-  
+
   // Reset selected seats when passenger count changes
   useEffect(() => {
     // Check if passenger count has changed and if there are selected seats
@@ -87,49 +96,62 @@ export default function SeatSelection() {
       dispatch({ type: "RESET_SELECTED_SEATS" });
     }
   }, [state.searchParams.passengers, dispatch]);
-  
+
   // Handle beforeunload event (when user tries to close/refresh the page)
   useEffect(() => {
     const handleBeforeUnload = (e) => {
       if (state.selectedSeats.length > 0) {
-        const message = "You have selected seats. Are you sure you want to leave?";
+        const message =
+          "You have selected seats. Are you sure you want to leave?";
         e.returnValue = message;
         return message;
       }
     };
 
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
     return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, [state.selectedSeats]);
-  
+
   // Update the handleContinue function
   const handleContinue = () => {
     if (state.selectedSeats.length === 0) {
       setSeatError("Please select at least one seat");
       return;
     }
-    
+
     if (state.selectedSeats.length > passengerCount) {
-      setSeatError(`You can only select ${passengerCount} seat${passengerCount > 1 ? 's' : ''} for ${passengerCount} passenger${passengerCount > 1 ? 's' : ''}`);
+      setSeatError(
+        `You can only select ${passengerCount} seat${
+          passengerCount > 1 ? "s" : ""
+        } for ${passengerCount} passenger${passengerCount > 1 ? "s" : ""}`
+      );
       return;
     }
-    
+
     if (state.selectedSeats.length < passengerCount) {
-      setSeatError(`Please select all ${passengerCount} seat${passengerCount > 1 ? 's' : ''}`);
+      setSeatError(
+        `Please select all ${passengerCount} seat${
+          passengerCount > 1 ? "s" : ""
+        }`
+      );
       return;
     }
-    
-    setSeatError('');
+
+    setSeatError("");
     navigate(`/booking/${flightId}`);
   };
-  
+
   // Handle back navigation with confirmation
   const handleBack = () => {
     if (state.selectedSeats.length > 0) {
-      if (window.confirm("You have selected seats. Going back will reset your selection. Continue?")) {
+      if (
+        window.confirm(
+          "You have selected seats. Going back will reset your selection. Continue?"
+        )
+      ) {
         dispatch({ type: "RESET_SELECTED_SEATS" });
         navigate("/flights");
       }
@@ -137,7 +159,7 @@ export default function SeatSelection() {
       navigate("/flights");
     }
   };
-  
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -145,7 +167,7 @@ export default function SeatSelection() {
       </div>
     );
   }
-  
+
   return (
     <div className="max-w-6xl mx-auto">
       <div className="mb-8">
@@ -172,17 +194,27 @@ export default function SeatSelection() {
               : "Not Set"}
           </span>
         </div>
-        
-        {/* Add this section after the travel class display */}
+
         <div className="mt-4">
-          <div className={`p-4 rounded-lg ${seatError ? 'bg-red-50 border border-red-200' : 'bg-blue-50 border border-blue-200'}`}>
+          <div
+            className={`p-4 rounded-lg ${
+              seatError
+                ? "bg-red-50 border border-red-200"
+                : "bg-blue-50 border border-blue-200"
+            }`}
+          >
             <p className={seatError ? "text-red-800" : "text-blue-800"}>
-              {seatError || `You need to select ${passengerCount} seat${passengerCount > 1 ? 's' : ''} for ${passengerCount} passenger${passengerCount > 1 ? 's' : ''}. Currently selected: ${state.selectedSeats.length}`}
+              {seatError ||
+                `You need to select ${passengerCount} seat${
+                  passengerCount > 1 ? "s" : ""
+                } for ${passengerCount} passenger${
+                  passengerCount > 1 ? "s" : ""
+                }. Currently selected: ${state.selectedSeats.length}`}
             </p>
           </div>
         </div>
       </div>
-      
+
       <div className="bg-white rounded-xl shadow-md p-6 mb-8">
         <div className="flex flex-col lg:flex-row gap-8">
           <div className="lg:w-3/4">
@@ -203,7 +235,7 @@ export default function SeatSelection() {
               </div>
             </div>
           </div>
-          
+
           <div className="lg:w-1/4">
             <div className="bg-gray-50 rounded-lg p-6">
               <h3 className="text-lg font-bold text-gray-900 mb-4">
@@ -254,13 +286,16 @@ export default function SeatSelection() {
                   <span className="text-primary">₹{totalPrice.toFixed(2)}</span>
                 </div>
               </div>
-              
-              {/* Updated Continue button */}
+
               <button
                 onClick={handleContinue}
-                disabled={state.selectedSeats.length === 0 || state.selectedSeats.length !== passengerCount}
+                disabled={
+                  state.selectedSeats.length === 0 ||
+                  state.selectedSeats.length !== passengerCount
+                }
                 className={`w-full bg-primary text-white py-3 rounded-lg font-medium mt-6 hover:bg-blue-600 transition duration-300 ${
-                  state.selectedSeats.length === 0 || state.selectedSeats.length !== passengerCount
+                  state.selectedSeats.length === 0 ||
+                  state.selectedSeats.length !== passengerCount
                     ? "opacity-50 cursor-not-allowed"
                     : ""
                 }`}
