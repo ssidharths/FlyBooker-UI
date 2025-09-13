@@ -1,0 +1,5 @@
+[[redirects]]
+  from = "/api/*"
+  to = "http://13.201.104.217:8081/fb/api/v1/:splat"
+  status = 200
+  force = true
