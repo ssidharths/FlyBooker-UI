@@ -15,7 +15,7 @@
     },
     "CNN": {
       "airportName": "Kannur International Airport",
-      "city": "Mattannur",
+      "city": "Kannur",
       "country": "India",
       "alternativeNames": ["Kannur", "Mattannur"],
       "state": "Kerala"
@@ -113,5 +113,41 @@
     "city": "New York",
     "country": "United States",
     "alternativeNames": ["New York City", "NYC"]
+  },
+  "AUH": {
+    "airportName": "Abu Dhabi International Airport",
+    "city": "Abu Dhabi",
+    "country": "UAE",
+    "alternativeNames": ["Abu Dhabi Airport"]
+  },
+  "MCT": {
+    "airportName": "Muscat International Airport",
+    "city": "Muscat",
+    "country": "Oman",
+    "alternativeNames": ["Seeb Airport"]
+  },
+  "SHJ": {
+    "airportName": "Sharjah International Airport",
+    "city": "Sharjah",
+    "country": "UAE",
+    "alternativeNames": ["Sharjah Airport"]
+  },
+  "DOH": {
+    "airportName": "Hamad International Airport",
+    "city": "Doha",
+    "country": "Qatar",
+    "alternativeNames": ["Doha Airport"]
+  },
+  "AMS": {
+    "airportName": "Amsterdam Airport Schiphol",
+    "city": "Amsterdam",
+    "country": "Netherlands",
+    "alternativeNames": ["Schiphol"]
+  },
+  "SFO": {
+    "airportName": "San Francisco International Airport",
+    "city": "San Francisco",
+    "country": "United States",
+    "alternativeNames": ["SFO Airport"]
   }
 }
