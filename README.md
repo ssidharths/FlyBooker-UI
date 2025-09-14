@@ -19,7 +19,7 @@ A modular flight booking backend built with **Spring Boot** and **PostgreSQL**, 
 - **Deployment:** Docker + Docker Compose  
 
 ## Backend Repo
-![Link](https://github.com/ssidharths/FlyBooker)  
+https://github.com/ssidharths/FlyBooker   
 
 ## 🖼️ Screenshots  
 
