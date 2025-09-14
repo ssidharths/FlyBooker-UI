@@ -140,7 +140,7 @@ const AirportSearch = ({
           {suggestions.map((airport, index) => (
             <div
               key={airport.code}
-              onClick={() => handleSuggestionClick(airport)}
+              onMouseDown={() => handleSuggestionClick(airport)}
               onTouchStart={(e) => handleSuggestionTouch(e, airport)}
               className={`px-4 py-3 cursor-pointer border-b border-gray-100 last:border-b-0 hover:bg-gray-50 ${
                 index === selectedIndex ? "bg-blue-50" : ""
